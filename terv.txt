@@ -1,0 +1,17 @@
+1. Hét:
+Alap játékkód és megjelenítés (tábla létrehozása, hajók lehelyezése)
+Az online megoldás alapjainak megvalósítása (tehát az online-kompatibilitás elkezdése)
+
+2. Hét:
+Egy játékosnak működő alap (lövés, találat, stb...)
+Online csatlakozás megkezdése/létrehozása
+
+3. Hét:
+Működő játékkód (2 játékos összekötése lokálisan)
+Online kapcsolat működése
+
+4. Hét:
+Design (táblák kinézete, sprite-ok lop... akarom mondani megszerzése és linkelése)
+Veglegesítés
+
+(És itt kell adni majd az 5-öst)
