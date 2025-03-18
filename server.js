@@ -11,7 +11,6 @@ const io = new Server(server);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 app.get('/', (req, res) => {
-    res.sendFile(join(__dirname, 'socket.js'));
     res.sendFile(join(__dirname, 'script.js'));
     res.sendFile(join(__dirname, 'index.html'));
 });
@@ -22,4 +21,8 @@ io.on('connection', (socket) => {
     io.on('clicked', (cell) => {
         Change(cell);
     })
+})
+
+server.listen(3000, () => {
+    console.log('port 3000');
 })
