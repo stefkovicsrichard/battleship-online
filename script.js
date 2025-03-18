@@ -2,6 +2,7 @@ function xyz() {
     var img = document.getElementById("halyo");
     img.src = "bum.png";
 }
+const socket = io()
 const own = document.getElementById("own_board")
 const enemy = document.getElementById("enemy_board")
 const table = document.createElement("table") 
@@ -14,6 +15,7 @@ function Create(){
             const td = document.createElement("td")
             td.classList.add(`${j+1}`)
             td.addEventListener("click", function(){
+                socket.emit('clicked', this)
                 Change(this)
             })
             tr.appendChild(td)
