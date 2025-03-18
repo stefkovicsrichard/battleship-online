@@ -26,16 +26,44 @@ function Create(){
 
 function Change(item){
     let num = 5
-    let act_p = num + item.getAtribute('class').value*1
-    let act_m = item.getAtribute('class').value*1 - num
+    const directions = Direct(item, num)
 
-    // if (act_p > ) {
-        
-    // }
-    if (item.style.backgroundColor =="green") {
-        item.style.backgroundColor = ""
+    if (directions.length != 0){
+        if (item.style.backgroundColor =="green") {
+            item.style.backgroundColor = ""
+            for (let index = 0; index < directions.length; index++) {
+                
+            }
+        }
+        else{
+            item.style.backgroundColor="green"
+        }
+
     }
-    else{
-        item.style.backgroundColor="green"
+
+}
+
+function Direct (item, num){
+    const act_y = item.parentElement.getAttribute("class").value*1
+    const act_x = item.getAttribute("class").value*1
+    let directions = []
+    if (!(act_y + num > 10)) {
+        directions.push[act_x, (act_y+num)]
+    }
+    if (!(act_x + num > 10)) {
+        directions.push[(act_x+num), act_y]
+    }
+    if (!(act_y - num < 1)) {
+        directions.push[act_x, (act_y-num)]
+    }
+    if (!(act_x - num < 1)) {
+        directions.push[(act_x-num), act_y]
+    }
+
+    if (directions.length >= 1) {
+        return directions
+    }
+    else {
+        return []
     }
 }
