@@ -13,7 +13,7 @@ function Create(){
         tr.classList.add(`${i+1}`)
         for (let j = 0; j < 10; j++) {
             const td = document.createElement("td")
-            td.classList.add(`${j+1}`)
+            td.id=`spot_${i}_${j}`;
             td.addEventListener("click", function(){
                 socket.emit('clicked', this)
                 Change(this)
@@ -28,17 +28,46 @@ function Create(){
 
 function Change(item){
     let num = 5
-    const directions = Direct(item, num)
+    const directions = Direct(item, num-1)
+    const fix_y = (item.id).split("_")[1].value*1
+    const fix_x = (item.id).split("_")[2].value*1
 
     if (directions.length != 0){
         if (item.style.backgroundColor =="green") {
             item.style.backgroundColor = ""
-            for (let index = 0; index < directions.length; index++) {
-                
-            }
         }
         else{
             item.style.backgroundColor="green"
+            for (let i = 0; i < directions.length; i++) {
+                const act_y = directions[i][0]
+                const act_x = directions[i][1]
+                for (let index = 1; index < num; index++) {
+                    let cur_y = fix_y
+                    let cur_x = fix_x
+                    if (act_y < fix_y) {
+                        cur_y -= index
+                    }
+                    else if (act_y > fix_y) {
+                        cur_y += index
+                    }
+                    if (act_x < fix_x) {
+                        cur_x -= index
+                    }
+                    else if (act_x > fix_x) {
+                        cur_x += index
+                    }
+                    const cur = document.getElementById(`spot_${cur_y}_${cur_x}`)
+                    cur.style.backgroundColor = "red"
+                    cur.addEventListener("click", function(){
+                        Fixate()
+                    })
+                }
+                let act = document.getElementById(`spot_${act_y}_${act_x}`)
+                act.style.backgroundColor = "red"
+                act.addEventListener("click", function(){
+                    Fixate()
+                })
+            }
         }
 
     }
@@ -46,20 +75,20 @@ function Change(item){
 }
 
 function Direct (item, num){
-    const act_y = item.parentElement.getAttribute("class").value*1
-    const act_x = item.getAttribute("class").value*1
+    const act_y = (item.id).split("_")[1].value*1
+    const act_x = (item.id).split("_")[2].value*1
     let directions = []
     if (!(act_y + num > 10)) {
-        directions.push[act_x, (act_y+num)]
+        directions.push[(act_y+num), act_x]
     }
     if (!(act_x + num > 10)) {
-        directions.push[(act_x+num), act_y]
+        directions.push[act_y, (act_x+num)]
     }
     if (!(act_y - num < 1)) {
-        directions.push[act_x, (act_y-num)]
+        directions.push[(act_y-num), act_x]
     }
     if (!(act_x - num < 1)) {
-        directions.push[(act_x-num), act_y]
+        directions.push[act_y, (act_x-num)]
     }
 
     if (directions.length >= 1) {
