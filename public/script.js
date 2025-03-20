@@ -1,68 +1,97 @@
-// Connect to the Socket.IO server
-const socket = io();
+const socket = io()
 
-// Get the board container elements from the DOM
-const ownBoard = document.getElementById("own_board");
-const enemyBoard = document.getElementById("enemy_board");
+const own = document.getElementById("own_board")
+const enemy = document.getElementById("enemy_board")
+const table = document.createElement("table") 
 
-/**
- * createBoard(container, prefix, isClickable)
- * - container: DOM element to contain the board.
- * - prefix: used for creating unique cell IDs ("own" or "enemy").
- * - isClickable: when true, attaches click events to each cell.
- */
-function createBoard(container, prefix, isClickable = false) {
-  const table = document.createElement("table");
-  for (let i = 0; i < 10; i++) {
-    const tr = document.createElement("tr");
-    for (let j = 0; j < 10; j++) {
-      const td = document.createElement("td");
-      // Assign a unique ID to each cell based on its coordinates.
-      td.id = `${prefix}-cell-${i}-${j}`;
-
-      // If the board should respond to clicks, add a click listener.
-      if (isClickable) {
-        td.addEventListener("click", function () {
-          // Create an object with the cell's coordinates.
-          const cellCoords = { row: i, col: j };
-
-          // Emit the 'clicked' event with the cell's coordinates.
-          socket.emit("clicked", cellCoords);
-
-          // Optionally, update your UI immediately.
-          toggleCellAppearance(this);
-        });
-      }
-      tr.appendChild(td);
+function Create(){
+    for (let i = 0; i < 10; i++) {
+        const tr = document.createElement("tr")
+        tr.classList.add(`${i+1}`)
+        for (let j = 0; j < 10; j++) {
+            const td = document.createElement("td")
+            td.id=`spot_${i}_${j}`;
+            td.addEventListener("click", function(){
+                socket.emit('clicked', this)
+                Change(this)
+            })
+            tr.appendChild(td)
+        }
+        table.appendChild(tr)
     }
-    table.appendChild(tr);
-  }
-  container.appendChild(table);
+    own.appendChild(table)
+    enemy.appendChild(table)
 }
 
-// Create your own board (non-clickable) and the enemy board (click-enabled).
-createBoard(ownBoard, "own", false);
-createBoard(enemyBoard, "enemy", true);
+function Change(item){
+    let num = 5
+    const directions = Direct(item, num-1)
+    const fix_y = (item.id).split("_")[1].value*1
+    const fix_x = (item.id).split("_")[2].value*1
 
-/**
- * toggleCellAppearance(element)
- * Toggles the background color of the provided cell.
- */
-function toggleCellAppearance(element) {
-  if (element.style.backgroundColor === "green") {
-    element.style.backgroundColor = "";
-  } else {
-    element.style.backgroundColor = "green";
-  }
+    if (directions.length != 0){
+        if (item.style.backgroundColor =="green") {
+            item.style.backgroundColor = ""
+        }
+        else{
+            item.style.backgroundColor="green"
+            for (let i = 0; i < directions.length; i++) {
+                const act_y = directions[i][0]
+                const act_x = directions[i][1]
+                for (let index = 1; index < num; index++) {
+                    let cur_y = fix_y
+                    let cur_x = fix_x
+                    if (act_y < fix_y) {
+                        cur_y -= index
+                    }
+                    else if (act_y > fix_y) {
+                        cur_y += index
+                    }
+                    if (act_x < fix_x) {
+                        cur_x -= index
+                    }
+                    else if (act_x > fix_x) {
+                        cur_x += index
+                    }
+                    const cur = document.getElementById(`spot_${cur_y}_${cur_x}`)
+                    cur.style.backgroundColor = "red"
+                    cur.addEventListener("click", function(){
+                        Fixate()
+                    })
+                }
+                let act = document.getElementById(`spot_${act_y}_${act_x}`)
+                act.style.backgroundColor = "red"
+                act.addEventListener("click", function(){
+                    Fixate()
+                })
+            }
+        }
+
+    }
+
 }
 
-// Listen for the 'change' event from the server.
-// When received, update the corresponding cell on the enemy board.
-socket.on("change", (cellCoords) => {
-  const { row, col } = cellCoords;
-  const cellId = `enemy-cell-${row}-${col}`;
-  const targetCell = document.getElementById(cellId);
-  if (targetCell) {
-    toggleCellAppearance(targetCell);
-  }
-});
+function Direct (item, num){
+    const act_y = (item.id).split("_")[1].value*1
+    const act_x = (item.id).split("_")[2].value*1
+    let directions = []
+    if (!(act_y + num > 10)) {
+        directions.push[(act_y+num), act_x]
+    }
+    if (!(act_x + num > 10)) {
+        directions.push[act_y, (act_x+num)]
+    }
+    if (!(act_y - num < 1)) {
+        directions.push[(act_y-num), act_x]
+    }
+    if (!(act_x - num < 1)) {
+        directions.push[act_y, (act_x-num)]
+    }
+
+    if (directions.length >= 1) {
+        return directions
+    }
+    else {
+        return []
+    }
+}
