@@ -10,19 +10,21 @@ const io = new Server(server);
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-app.get('/', (req, res) => {
-    res.sendFile(join(__dirname, 'script.js'));
-    res.sendFile(join(__dirname, 'index.html'));
-});
+app.use(express.static(join(__dirname, 'public')));
 
 io.on('connection', (socket) => {
     console.log('connect');
 
-    io.on('clicked', (cell) => {
-        Change(cell);
-    })
+    socket.on('clicked', (cellCoords) => {
+    // Broadcast the 'change' event to all other connected clients.
+    socket.broadcast.emit('change', cellCoords);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('A client disconnected');
+  });
 })
 
 server.listen(3000, () => {
     console.log('port 3000');
-})
+});
