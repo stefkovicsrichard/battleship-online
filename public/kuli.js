@@ -45,16 +45,16 @@ function Change(item){
                     let cur_y = fix_y
                     let cur_x = fix_x
                     if (act_y < fix_y) {
-                        cur_y -= index
-                    }
-                    else if (act_y > fix_y) {
                         cur_y += index
                     }
+                    else if (act_y > fix_y) {
+                        cur_y -= index
+                    }
                     if (act_x < fix_x) {
-                        cur_x -= index
+                        cur_x += index
                     }
                     else if (act_x > fix_x) {
-                        cur_x += index
+                        cur_x -= index
                     }
                     const cur = document.getElementById(`spot_${cur_y}_${cur_x}`)
                     cur.style.backgroundColor = "red"

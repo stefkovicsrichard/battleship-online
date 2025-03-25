@@ -99,6 +99,15 @@ function place(element) {
 	// 		// 		let xCurrent = xPivot; //4
 	// 		// 		let yCurrent = yPivot; //5
 
+					if (xCurrent < xEnd) {
+						xCurrent++;
+						let x = document.getElementById(`own-cell-${yCurrent}-${xCurrent}`);
+						x.style.backgroundColor = "red";
+					} else if (xCurrent > xEnd) {
+						xCurrent--;
+						let x = document.getElementById(`own-cell-${yCurrent}-${xCurrent}`);
+						x.style.backgroundColor = "red";
+					}
 	// 		// 		if (xCurrent < xEnd) {
 	// 		// 			xCurrent++;
 	// 		// 			let x = document.getElementById(`own-cell-${yCurrent}-${xCurrent}`);
@@ -109,6 +118,15 @@ function place(element) {
 	// 		// 			x.style.backgroundColor = "red";
 	// 		// 		}
 
+					if (yCurrent < yEnd) {
+						yCurrent++;
+						let x = document.getElementById(`own-cell-${yCurrent}-${xCurrent}`);
+						x.style.backgroundColor = "red";
+					} else if (yCurrent > yEnd) {
+						yCurrent--;
+						let x = document.getElementById(`own-cell-${yCurrent}-${xCurrent}`);
+						x.style.backgroundColor = "red";
+					}
 	// 		// 		if (yCurrent < yEnd) {
 	// 		// 			yCurrent++;
 	// 		// 			let x = document.getElementById(`own-cell-${yCurrent}-${xCurrent}`);
@@ -169,6 +187,10 @@ function place(element) {
 
 // 	// let dirs = [];
 
+	if (y+ship<=10) dirs.push([y+ship, x]);
+	if (x+ship<=10) dirs.push([y, x+ship]);
+	if (y-ship>=1) dirs.push([y-ship, x]);
+	if (x-ship>=1) dirs.push([y, x-ship]);
 // 	// if (y+ship<=10) dirs.push([y+ship, x]);
 // 	// if (x+ship<=10) dirs.push([y, x+ship]);
 // 	// if (y-ship>=1) dirs.push([y-ship, x]);
