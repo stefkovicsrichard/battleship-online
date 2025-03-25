@@ -75,21 +75,21 @@ function place(element, ship) {
 					let yCurrent = yPivot; //5
 
 					if (xCurrent < xEnd) {
-						xCurrent--;
+						xCurrent++;
 						let x = document.getElementById(`own-cell-${yCurrent}-${xCurrent}`);
 						x.style.backgroundColor = "red";
 					} else if (xCurrent > xEnd) {
-						xCurrent++;
+						xCurrent--;
 						let x = document.getElementById(`own-cell-${yCurrent}-${xCurrent}`);
 						x.style.backgroundColor = "red";
 					}
 
 					if (yCurrent < yEnd) {
-						yCurrent--;
+						yCurrent++;
 						let x = document.getElementById(`own-cell-${yCurrent}-${xCurrent}`);
 						x.style.backgroundColor = "red";
 					} else if (yCurrent > yEnd) {
-						yCurrent++;
+						yCurrent--;
 						let x = document.getElementById(`own-cell-${yCurrent}-${xCurrent}`);
 						x.style.backgroundColor = "red";
 					}
@@ -141,10 +141,10 @@ function directions(element, ship) {
 
 	let dirs = [];
 
-	if (y+ship<=9) dirs.push([y+ship, x]);
-	if (x+ship<=9) dirs.push([y, x+ship]);
-	if (y-ship>=0) dirs.push([y-ship, x]);
-	if (x-ship>=0) dirs.push([y, x-ship]);
+	if (y+ship<=10) dirs.push([y+ship, x]);
+	if (x+ship<=10) dirs.push([y, x+ship]);
+	if (y-ship>=1) dirs.push([y-ship, x]);
+	if (x-ship>=1) dirs.push([y, x-ship]);
 
 	return dirs;
 }
