@@ -62,7 +62,7 @@ function place(element) {
 	var y = element.id.split("-")[2]*1;
 	var x = element.id.split("-")[3]*1;
 	document.getElementById(element.id).style.backgroundColor = "green";
-	
+
 	for (let i = 0; i < dirs.length; i++) {
 		y+=dirs[i][0];
 		x+=dirs[i][1];
@@ -179,11 +179,18 @@ function place(element) {
 
 // Listen for the 'change' event from the server.
 // When received, update the corresponding cell on the enemy board.
-socket.on("change", (cellCoords) => {
-  	const { row, col } = cellCoords;
-  	const cellId = `enemy-cell-${row}-${col}`;
-  	const targetCell = document.getElementById(cellId);
-  	if (targetCell) {
-    	toggleCellAppearance(targetCell);
+
+function toggleCell(cell, color) {
+	cell.style.backgroundColor = color;
+}
+
+socket.on('change', (cellCoords, color) => {
+	if (sender != socket.id) {
+		const { row, col } = cellCoords;
+		const cellId = `enemy-cell-${row}-${col}`;
+		const targetCell = document.getElementById(cellId);
+		if (targetCell) {
+		  toggleCell(targetCell, color);
+	}
   }
 });
