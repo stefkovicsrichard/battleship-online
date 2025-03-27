@@ -1,9 +1,16 @@
 // Connect to the Socket.IO server
 const socket = io();
 
+const login = document.getElementById("credentials");
+const game = document.getElementById("game");
+game.style = "display: none"
+
 // Get the board container elements from the DOM
 const ownBoard = document.getElementById("own_board");
 const enemyBoard = document.getElementById("enemy_board");
+
+var clicking = false;
+var curClick = "";
 
 /**
  * createBoard(container, prefix, isClickable)
@@ -49,35 +56,85 @@ function createBoard(container, prefix, isClickable = false) {
   	container.appendChild(table);
 }
 
-// Create your own board (non-clickable) and the enemy board (click-enabled).
-createBoard(ownBoard, "own", true);
-createBoard(enemyBoard, "enemy", false);
+function join(data) {
+	if (!data.username || !data.roomId) {
+		alert("felhasznalonev es szoba id kotelezo ocsisajr");
+	} else {
+		socket.emit('joinRoom', data);
+	}
+}
 
 /**
  * place(element)
  * Toggles the background color of the provided cell.
  */
 function place(element) {
-	const dirs = [[0, 1], [-1, 0], [0, -1], [1, 0]];
-	var y = element.id.split("-")[2]*1;
-	var x = element.id.split("-")[3]*1;
-	document.getElementById(element.id).style.backgroundColor = "green";
+	const ship = document.getElementById('ship').value - 1;
+	if (!clicking) {
+		curClick = element;
+		clicking = true;
+		const dirs = [[0, 1], [-1, 0], [0, -1], [1, 0]];
+		var y = element.id.split("-")[2]*1;
+		var x = element.id.split("-")[3]*1;
+		const cy = y;
+		const cx = x;
+		document.getElementById(element.id).style.backgroundColor = "green";
 
-	for (let i = 0; i < dirs.length; i++) {
-		y+=dirs[i][0];
-		x+=dirs[i][1];
-		while ( !(y>=10) && !(y<0) && !(x>=10) && !(x<0) ) {
-			var check = document.getElementById(`own-cell-${y}-${x}`);
-			if (!check.style.backgroundColor == "grey") {
-				
-			} else {
-				y+=dirs[i][0];
-				x+=dirs[i][1];
+		for (let i = 0; i < dirs.length; i++) {
+			y+=dirs[i][0];
+			x+=dirs[i][1];
+			while ( (!(y>=10) && !(y<0) && !(x>=10) && !(x<0)) && (!(y>cy+ship) && !(y<cy-ship) && !(x>cx+ship) && !(x<cx-ship)) ) {
+				var check = document.getElementById(`own-cell-${y}-${x}`);
+				if (!check.style.backgroundColor == "grey") {
+					
+				} else {
+					y+=dirs[i][0];
+					x+=dirs[i][1];
+				}
+				check.style.backgroundColor = "red";
 			}
-			check.style.backgroundColor = "red";
+			y = element.id.split("-")[2]*1;
+			x = element.id.split("-")[3]*1;
 		}
-		y = element.id.split("-")[2]*1;
-		x = element.id.split("-")[3]*1;
+	} else {
+		if (element.style.backgroundColor == "red") {
+			var y = curClick.id.split("-")[2]*1;
+			var x = curClick.id.split("-")[3]*1;
+			var endY = element.id.split("-")[2]*1;
+			var endX = element.id.split("-")[3]*1;
+			// const dir = [y/endY==NaN?0:y/endY, x/endX==NaN?0:x/endX]
+			var dir = [];
+			var yN = (y-endY)/(y-endY) || 0;
+			var yNH = y-endY<0?1:-1;
+			var xN = (x-endX)/(x-endX) || 0;
+			var xNH = x-endX<0?1:-1;
+			yN = yN*yNH;
+			xN = xN*xNH;
+			if (yN > 0 && xN == 0) { 
+				dir.push(1);
+				dir.push(0);
+			}
+			if (yN == 0 && xN < 0) {
+				dir.push(0);
+				dir.push(-1);
+			}
+			if (yN < 0 && xN == 0) {
+				dir.push(-1);
+				dir.push(0);
+			}
+			if (yN == 0 && xN > 0) {
+				dir.push(0);
+				dir.push(1);
+			}
+			document.getElementById(`own-cell-${y}-${x}`).style.backgroundColor = "blue";
+			do {
+				y+=dir[0];
+				x+=dir[1];
+				document.getElementById(`own-cell-${y}-${x}`).style.backgroundColor = "blue";
+			} while (y!=endY||x!=endX);
+			clicking = false;
+			curClick = "";
+		}
 	}
 	
 	// const xPivot = element.id.split("-")[3]*1; //4
@@ -190,4 +247,15 @@ socket.on('change', (cellCoords, color) => {
 		  toggleCell(targetCell, color);
 	}
   }
+});
+
+socket.on('joinSuccess', (data) => {
+	login.style = "display: none";
+		game.style = "";
+		createBoard(ownBoard, "own", true);
+		createBoard(enemyBoard, "enemy", false);
+});
+
+socket.on('joinFail', () => {
+	alert("teli a szoba ez nem bohockocsi");
 });

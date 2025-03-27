@@ -1,12 +1,8 @@
 body {
-    background-color: black;
+    background-color: #0c0c0e;
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-}
-img {
-    display: block;
-    margin: auto;
 }
 
 table {
@@ -14,12 +10,12 @@ table {
     table-layout: fixed; 
     height: 300px; 
     border-collapse: collapse; 
-  }
+}
 
-  td {
+td {
     border: 1px solid #ddd; 
-    width: 100%;  
+    width: 100%;
+    aspect-ratio: 1/1;
     text-align: center; 
     vertical-align: middle; 
-  }
-  
+}
