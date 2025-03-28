@@ -16,7 +16,7 @@
         <input type="button" value="Join" onclick="join({username: document.getElementById('username').value, roomId: document.getElementById('roomId').value})">
     </div>
     <div id="game" class="container-fluid">
-        <input type="number" name="ship" id="ship" placeholder="ship">
+        <input type="number" name="ship" id="ship" placeholder="ship" min="2" max="5" onkeydown="return false" value="5">
         <div class="row">
             <div id="own_board" class="col-xl-6 col-lg-12"></div>
             <div id="enemy_board" class="col-xl-6 col-lg-12"></div>
