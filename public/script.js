@@ -42,10 +42,6 @@ function join(data) {
 	}
 }
 
-function C(y, x) {
-	return ((!(y>=10) && !(y<0) && !(x>=10) && !(x<0)) && (!(y>cy+ship) && !(y<cy-ship) && !(x>cx+ship) && !(x<cx-ship)) && (!document.getElementById(`own-cell${y}-${x}`).style.backgroundColor == 'blue'))?true:false;
-}
-
 function place(element) {
 	const ship = document.getElementById('ship').value - 1;
 	if (!clicking) {
@@ -62,7 +58,7 @@ function place(element) {
 		for (let i = 0; i < dirs.length; i++) {
 			y+=dirs[i][0];
 			x+=dirs[i][1];
-			while ( C(y, x) ) {
+			while ((!(y>=10) && !(y<0) && !(x>=10) && !(x<0)) && (!(y>cy+ship) && !(y<cy-ship) && !(x>cx+ship) && !(x<cx-ship)) && (!document.getElementById(`own-cell${y}-${x}`).style.backgroundColor == 'blue')) {
 				var check = document.getElementById(`own-cell-${y}-${x}`);
 				if (!check.style.backgroundColor == "grey") {
 					
@@ -71,7 +67,7 @@ function place(element) {
 					x+=dirs[i][1];
 				}
 			}
-			if (C(y, x)) {
+			if ((!(y>=10) && !(y<0) && !(x>=10) && !(x<0)) && (!(y>cy+ship) && !(y<cy-ship) && !(x>cx+ship) && !(x<cx-ship)) && (!document.getElementById(`own-cell${y}-${x}`).style.backgroundColor == 'blue')) {
 				check.style.backgroundColor = "red";
 			}
 			y = element.id.split("-")[2]*1;
