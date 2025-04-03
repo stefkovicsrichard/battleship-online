@@ -42,13 +42,17 @@ function join(data) {
 	}
 }
 
-function C(y, x) {
-	return ((!(y>=10) && !(y<0) && !(x>=10) && !(x<0)) && (!(y>cy+ship) && !(y<cy-ship) && !(x>cx+ship) && !(x<cx-ship)) && (!document.getElementById(`own-cell-${y}-${x}`).style.backgroundColor == 'blue'))?true:false;
+function C(y, x, cy, cx, ship) {
+	if ((!(y>=10) && !(y<0) && !(x>=10) && !(x<0)) && (!(y>cy+ship) && !(y<cy-ship) && !(x>cx+ship) && !(x<cx-ship)) && !(document.getElementById(`own-cell-${y}-${x}`).style.backgroundColor == 'blue')) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 function place(element) {
-	const ship = document.getElementById('ship').value - 1;
-	if (!clicking) {
+	const ship = document.getElementById('ship').value;
+	if (!clicking && element.style.backgroundColor != "blue") {
 		curClick = element;
 		clicking = true;
 		const dirs = [[0, 1], [-1, 0], [0, -1], [1, 0]];
@@ -60,20 +64,23 @@ function place(element) {
 		socket.emit('change', (element));
 
 		for (let i = 0; i < dirs.length; i++) {
+			if (y+dirs[i][0]*(ship-1) > 9 || y+dirs[i][0]*(ship-1) < 0 || x+dirs[i][1]*(ship-1) > 9 || x+dirs[i][1]*(ship-1) < 0) continue;
 			y+=dirs[i][0];
 			x+=dirs[i][1];
-			while ((!(y>=10) && !(y<0) && !(x>=10) && !(x<0)) && (!(y>cy+ship) && !(y<cy-ship) && !(x>cx+ship) && !(x<cx-ship)) && (!document.getElementById(`own-cell${y}-${x}`).style.backgroundColor == 'blue')) {
+			const sColCheck = []
+			while (C(y, x, cy, cx, ship)) {
 				var check = document.getElementById(`own-cell-${y}-${x}`);
-				if (!check.style.backgroundColor == "grey") {
-					
-				} else {
-					y+=dirs[i][0];
-					x+=dirs[i][1];
+				y+=dirs[i][0];
+				x+=dirs[i][1];
+				if (C(y, x, cy, cx, ship)) {
+					sColCheck.push(check);
 				}
 			}
-			if ((!(y>=10) && !(y<0) && !(x>=10) && !(x<0)) && (!(y>cy+ship) && !(y<cy-ship) && !(x>cx+ship) && !(x<cx-ship)) && (!document.getElementById(`own-cell${y}-${x}`).style.backgroundColor == 'blue')) {
-				check.style.backgroundColor = "red";
-			}
+			if (sColCheck.length == ship-1) {
+				for (let i = 0; i < ship-1; i++) {
+					sColCheck[i].style.backgroundColor = "red";
+				}
+			} 
 			y = element.id.split("-")[2]*1;
 			x = element.id.split("-")[3]*1;
 		}
@@ -120,6 +127,15 @@ function place(element) {
 					if (document.getElementById(`own-cell-${i}-${j}`).style.backgroundColor == "red")
 					document.getElementById(`own-cell-${i}-${j}`).style.backgroundColor = "";
 				} 
+			}
+		} else if (element.style.backgroundColor == "green") {
+			element.style.backgroundColor = "";
+			clicking = false;
+			for (let i = 0; i < 10; i++) {
+				for (let j = 0; j < 10; j++) {
+					var aCell = document.getElementById(`own-cell-${i}-${j}`);
+					if (aCell.style.backgroundColor == "red") aCell.style.backgroundColor = ""; 
+				}
 			}
 		}
 	}
