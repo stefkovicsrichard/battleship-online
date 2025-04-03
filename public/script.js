@@ -42,6 +42,10 @@ function join(data) {
 	}
 }
 
+function C(y, x) {
+	return ((!(y>=10) && !(y<0) && !(x>=10) && !(x<0)) && (!(y>cy+ship) && !(y<cy-ship) && !(x>cx+ship) && !(x<cx-ship)) && (!document.getElementById(`own-cell-${y}-${x}`).style.backgroundColor == 'blue'))?true:false;
+}
+
 function place(element) {
 	const ship = document.getElementById('ship').value - 1;
 	if (!clicking) {
