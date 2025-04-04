@@ -51,7 +51,7 @@ function C(y, x, cy, cx, ship) {
 }
 
 function place(element) {
-	const ship = document.getElementById('ship').value;
+	const ship = document.getElementById('ship').value-1;
 	if (!clicking && element.style.backgroundColor != "blue") {
 		curClick = element;
 		clicking = true;
@@ -64,21 +64,22 @@ function place(element) {
 		socket.emit('change', (element));
 
 		for (let i = 0; i < dirs.length; i++) {
-			if (cy+dirs[i][0]*(ship-1) > 9 || cy+dirs[i][0]*(ship-1) < 0 || cx+dirs[i][1]*(ship-1) > 9 || cx+dirs[i][1]*(ship-1) < 0) continue;
+			if (cy+dirs[i][0]*ship > 9 || cy+dirs[i][0]*ship < 0 || cx+dirs[i][1]*ship > 9 || cx+dirs[i][1]*ship < 0) continue;
 			y+=dirs[i][0];
 			x+=dirs[i][1];
 			const sColCheck = []
 			while (C(y, x, cy, cx, ship)) {
 				var check = document.getElementById(`own-cell-${y}-${x}`);
+				sColCheck.push(check);
 				y+=dirs[i][0];
 				x+=dirs[i][1];
-				sColCheck.push(check);
 			}
-			if (sColCheck.length == ship-1) {
+			if (sColCheck.length == ship) {
 				for (let i = 0; i < ship-1; i++) {
-					sColCheck[i].style.backgroundColor = "red";
+					sColCheck[i].style.backgroundColor = "orange";
 				}
-			} 
+				sColCheck[ship-1].style.backgroundColor = "red";
+			}
 			y = element.id.split("-")[2]*1;
 			x = element.id.split("-")[3]*1;
 		}
@@ -122,7 +123,7 @@ function place(element) {
 			curClick = "";
 			for (let i = 0; i < 10; i++) {
 				for (let j = 0; j < 10; j++) {
-					if (document.getElementById(`own-cell-${i}-${j}`).style.backgroundColor == "red")
+					if (document.getElementById(`own-cell-${i}-${j}`).style.backgroundColor == "red" || document.getElementById(`own-cell-${i}-${j}`).style.backgroundColor == "orange")
 					document.getElementById(`own-cell-${i}-${j}`).style.backgroundColor = "";
 				} 
 			}
@@ -132,7 +133,7 @@ function place(element) {
 			for (let i = 0; i < 10; i++) {
 				for (let j = 0; j < 10; j++) {
 					var aCell = document.getElementById(`own-cell-${i}-${j}`);
-					if (aCell.style.backgroundColor == "red") aCell.style.backgroundColor = ""; 
+					if (aCell.style.backgroundColor == "red" || aCell.style.backgroundColor == "orange") aCell.style.backgroundColor = ""; 
 				}
 			}
 		}
