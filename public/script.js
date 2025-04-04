@@ -43,7 +43,7 @@ function join(data) {
 }
 
 function C(y, x, cy, cx, ship) {
-	if ((!(y>=10) && !(y<0) && !(x>=10) && !(x<0)) && (!(y>cy+ship) && !(y<cy-ship) && !(x>cx+ship) && !(x<cx-ship)) && !(document.getElementById(`own-cell-${y}-${x}`).style.backgroundColor == 'blue')) {
+	if ((!(y>9) && !(y<0) && !(x>9) && !(x<0)) && (!(y>cy+ship) && !(y<cy-ship) && !(x>cx+ship) && !(x<cx-ship)) && !(document.getElementById(`own-cell-${y}-${x}`).style.backgroundColor == 'blue')) {
 		return true;
 	} else {
 		return false;
@@ -55,7 +55,7 @@ function place(element) {
 	if (!clicking && element.style.backgroundColor != "blue") {
 		curClick = element;
 		clicking = true;
-		const dirs = [[0, 1], [-1, 0], [0, -1], [1, 0]];
+		const dirs = [[0, 1], [1, 0], [0, -1], [-1, 0]];
 		var y = element.id.split("-")[2]*1;
 		var x = element.id.split("-")[3]*1;
 		const cy = y;
@@ -64,7 +64,7 @@ function place(element) {
 		socket.emit('change', (element));
 
 		for (let i = 0; i < dirs.length; i++) {
-			if (y+dirs[i][0]*(ship-1) > 9 || y+dirs[i][0]*(ship-1) < 0 || x+dirs[i][1]*(ship-1) > 9 || x+dirs[i][1]*(ship-1) < 0) continue;
+			if (cy+dirs[i][0]*(ship-1) > 9 || cy+dirs[i][0]*(ship-1) < 0 || cx+dirs[i][1]*(ship-1) > 9 || cx+dirs[i][1]*(ship-1) < 0) continue;
 			y+=dirs[i][0];
 			x+=dirs[i][1];
 			const sColCheck = []
@@ -72,9 +72,7 @@ function place(element) {
 				var check = document.getElementById(`own-cell-${y}-${x}`);
 				y+=dirs[i][0];
 				x+=dirs[i][1];
-				if (C(y, x, cy, cx, ship)) {
-					sColCheck.push(check);
-				}
+				sColCheck.push(check);
 			}
 			if (sColCheck.length == ship-1) {
 				for (let i = 0; i < ship-1; i++) {
