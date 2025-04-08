@@ -6,7 +6,9 @@ import { fileURLToPath } from 'node:url';
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+	connectionStateRecovery: {}
+});
 
 
 
@@ -17,10 +19,9 @@ app.use(express.static(join(__dirname, 'public')));
 io.on('connection', (socket) => {
     console.log('connect');
 
-    socket.on('clicked', (cellCoords) => {
-    	// Broadcast the 'change' event to all other connected clients.
-    	socket.broadcast.emit('change', cellCoords);
-  	});
+    socket.on('enemyPlace', (shipID) => {
+		socket.broadcast.emit('placeEnemy', (shipID));
+	});
 
   	socket.on('joinRoom', (data) => {
 		if ((io.sockets.adapter.rooms.get(data.roomId)?.size || 0) < 2) {

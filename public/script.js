@@ -61,7 +61,6 @@ function place(element) {
 		const cy = y;
 		const cx = x;
 		document.getElementById(element.id).style.backgroundColor = "green";
-		socket.emit('change', (element));
 
 		for (let i = 0; i < dirs.length; i++) {
 			if (cy+dirs[i][0]*ship > 9 || cy+dirs[i][0]*ship < 0 || cx+dirs[i][1]*ship > 9 || cx+dirs[i][1]*ship < 0) continue;
@@ -114,10 +113,12 @@ function place(element) {
 				dir.push(1);
 			}
 			document.getElementById(`own-cell-${y}-${x}`).style.backgroundColor = "blue";
+			socket.emit('enemyPlace', (`own-cell-${y}-${x}`));
 			do {
 				y+=dir[0];
 				x+=dir[1];
 				document.getElementById(`own-cell-${y}-${x}`).style.backgroundColor = "blue";
+				socket.emit('enemyPlace', (`own-cell-${y}-${x}`));
 			} while (y!=endY||x!=endX);
 			clicking = false;
 			curClick = "";
@@ -138,6 +139,10 @@ function place(element) {
 			}
 		}
 	}
+}
+
+function shoot(element) {
+	
 }
 	
 function toggleCell(cell, color) {
@@ -161,3 +166,8 @@ socket.on('joinSuccess', (data) => {
 socket.on('joinFail', () => {
 	alert("teli a szoba ez nem bohockocsi");
 });
+
+socket.on('placeEnemy', (shipID) => {
+	const cell = document.getElementById(shipID.replace("own", "enemy"));
+	cell.style.backgroundColor = "red";
+})
