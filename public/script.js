@@ -2,7 +2,9 @@ const socket = io();
 
 const login = document.getElementById("credentials");
 const game = document.getElementById("game");
-game.style = "display: none"
+const waiting = document.getElementById("waiting");
+waiting.style = "display: none";
+game.style = "display: none";
 
 const ownBoard = document.getElementById("own_board");
 const enemyBoard = document.getElementById("enemy_board");
@@ -50,14 +52,45 @@ function C(y, x, cy, cx, ship) {
 	}
 }
 
-function isShip(y, x) {
-	if (document.getElementById(`own-cell-${y}-${x}`).style.backgroundColor == "blue") return true;
+function isTouching(y, x) {
+	if (!isInbounds(y, x)) return false;
+	else if (document.getElementById(`own-cell-${y}-${x}`).style.backgroundColor == "blue") return true;
 	else return false;
 }
 
 function isInbounds(y, x) {
 	if (!(y>9) && !(y<0) && !(x>9) && !(x<0)) return true;
 	else return false;
+}
+
+function serializeTable() {
+	const table = document.getElementById("own_board");
+	if (!table) {
+	 	console.error(`Table with id "own_board" not found.`);
+	  	return null;
+	}
+
+	const tableData = [];
+	const rows = table.getElementsByTagName('tr');
+
+	// Loop through each row (expecting 10 rows)
+	for (let i = 0; i < rows.length; i++) {
+	  	const rowData = [];
+	  	const cells = rows[i].getElementsByTagName('td');
+
+	  	// Loop through each cell (expecting 10 cells per row)
+	  	for (let j = 0; j < cells.length; j++) {
+			const cell = cells[j];
+			// Retrieve the background color.
+			// This checks for inline style; if not available, falls back to computed style.
+			const bgColor =	cell.style.backgroundColor || window.getComputedStyle(cell).backgroundColor;
+			rowData.push(bgColor);
+	  	}
+	  	tableData.push(rowData);
+	}
+
+	// Convert the 2D array into a nicely formatted JSON string.
+	return JSON.stringify(tableData, null, 2);
 }
 
 function place(element) {
@@ -71,34 +104,39 @@ function place(element) {
 		const cy = y;
 		const cx = x;
 		document.getElementById(element.id).style.backgroundColor = "green";
-
-		for (let i = 0; i < dirs.length; i++) {
-			if (cy+dirs[i][0]*ship > 9 || cy+dirs[i][0]*ship < 0 || cx+dirs[i][1]*ship > 9 || cx+dirs[i][1]*ship < 0) continue;
-			y+=dirs[i][0];
-			x+=dirs[i][1];
-			const sColCheck = []
-			while (C(y, x, cy, cx, ship)) { 
-				// if (isInbounds(y+1, x) && isInbounds(y-1, x) && isInbounds(y, x+1) && isInbounds(y, x-1) &&
-				// 		isInbounds(y+1, x+1) && isInbounds(y-1, x+1) && isInbounds(y-1, x-1) && isInbounds(y+1, x-1)) {
-				// 	if (!isShip(y+1, x) && !isShip(y-1, x) && !isShip(y, x+1) && !isShip(y, x-1) &&
-				// 			!isShip(y+1, x+1) && !isShip(y-1, x+1) && !isShip(y-1, x-1) && !isShip(y+1, x-1)) {
-				// 		var check = document.getElementById(`own-cell-${y}-${x}`);
-				// 		sColCheck.push(check);
-				// 	}
-				// }
-				var check = document.getElementById(`own-cell-${y}-${x}`);
-				sColCheck.push(check);
+		if (!isTouching(y-1, x) && !isTouching(y, x+1) && !isTouching(y+1, x) && !isTouching(y, x-1) &&
+				!isTouching(y-1, x+1) && !isTouching(y+1, x+1) && !isTouching(y+1, x-1) && !isTouching(y-1, x-1)) {
+			for (let i = 0; i < dirs.length; i++) {
+				if (cy+dirs[i][0]*ship > 9 || cy+dirs[i][0]*ship < 0 || cx+dirs[i][1]*ship > 9 || cx+dirs[i][1]*ship < 0) continue;
 				y+=dirs[i][0];
 				x+=dirs[i][1];
-			}
-			if (sColCheck.length == ship) {
-				for (let i = 0; i < ship-1; i++) {
-					sColCheck[i].style.backgroundColor = "orange";
+				const sColCheck = [];
+				while (C(y, x, cy, cx, ship)) { 
+					// if (isInbounds(y+1, x) && isInbounds(y-1, x) && isInbounds(y, x+1) && isInbounds(y, x-1) &&
+					// 		isInbounds(y+1, x+1) && isInbounds(y-1, x+1) && isInbounds(y-1, x-1) && isInbounds(y+1, x-1)) {
+					// 	if (!isShip(y+1, x) && !isShip(y-1, x) && !isShip(y, x+1) && !isShip(y, x-1) &&
+					// 			!isShip(y+1, x+1) && !isShip(y-1, x+1) && !isShip(y-1, x-1) && !isShip(y+1, x-1)) {
+					// 		var check = document.getElementById(`own-cell-${y}-${x}`);
+					// 		sColCheck.push(check);
+					// 	}
+					// }
+					if (!isTouching(y-1, x) && !isTouching(y, x+1) && !isTouching(y+1, x) && !isTouching(y, x-1) &&
+							!isTouching(y-1, x+1) && !isTouching(y+1, x+1) && !isTouching(y+1, x-1) && !isTouching(y-1, x-1)) {
+						var check = document.getElementById(`own-cell-${y}-${x}`);
+						sColCheck.push(check);
+					}
+					y+=dirs[i][0];
+					x+=dirs[i][1];
 				}
-				sColCheck[ship-1].style.backgroundColor = "red";
+				if (sColCheck.length == ship) {
+					for (let i = 0; i < ship-1; i++) {
+						sColCheck[i].style.backgroundColor = "orange";
+					}
+					sColCheck[ship-1].style.backgroundColor = "red";
+				}
+				y = element.id.split("-")[2]*1;
+				x = element.id.split("-")[3]*1;
 			}
-			y = element.id.split("-")[2]*1;
-			x = element.id.split("-")[3]*1;
 		}
 	} else {
 		if (element.style.backgroundColor == "red") {
@@ -174,8 +212,13 @@ socket.on('change', (element) => {
 	}
 });
 
-socket.on('joinSuccess', (data) => {
+socket.on('waiting', () => {
 	login.style = "display: none";
+	waiting.style = "";
+});
+
+socket.on('joinSuccess', (data) => {
+	waiting.style = "display: none";
 		game.style = "";
 		createBoard(ownBoard, "own", true);
 		createBoard(enemyBoard, "enemy", false);

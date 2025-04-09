@@ -26,8 +26,12 @@ io.on('connection', (socket) => {
   	socket.on('joinRoom', (data) => {
 		if ((io.sockets.adapter.rooms.get(data.roomId)?.size || 0) < 2) {
 			socket.join(data.roomId);
-			console.log(`${data.username} belepett a(z) ${data.roomId} szobaba`);
-			socket.emit('joinSuccess', (data));
+			socket.emit('waiting');
+			console.log(`${data.username} belepett a(z) ${data.roomId} szobaba (${(io.sockets.adapter.rooms.get(data.roomId)?.size || 0)}/2)`);
+			if ((io.sockets.adapter.rooms.get(data.roomId)?.size || 0) == 2) {
+				socket.emit('joinSuccess', (data))
+				socket.to(data.roomId).emit('joinSuccess', (data))
+			}
 		} else {
 			socket.emit('joinFail');
 		}
