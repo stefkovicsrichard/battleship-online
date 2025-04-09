@@ -50,6 +50,16 @@ function C(y, x, cy, cx, ship) {
 	}
 }
 
+function isShip(y, x) {
+	if (document.getElementById(`own-cell-${y}-${x}`).style.backgroundColor == "blue") return true;
+	else return false;
+}
+
+function isInbounds(y, x) {
+	if (!(y>9) && !(y<0) && !(x>9) && !(x<0)) return true;
+	else return false;
+}
+
 function place(element) {
 	const ship = document.getElementById('ship').value-1;
 	if (!clicking && element.style.backgroundColor != "blue") {
@@ -67,7 +77,15 @@ function place(element) {
 			y+=dirs[i][0];
 			x+=dirs[i][1];
 			const sColCheck = []
-			while (C(y, x, cy, cx, ship)) {
+			while (C(y, x, cy, cx, ship)) { 
+				// if (isInbounds(y+1, x) && isInbounds(y-1, x) && isInbounds(y, x+1) && isInbounds(y, x-1) &&
+				// 		isInbounds(y+1, x+1) && isInbounds(y-1, x+1) && isInbounds(y-1, x-1) && isInbounds(y+1, x-1)) {
+				// 	if (!isShip(y+1, x) && !isShip(y-1, x) && !isShip(y, x+1) && !isShip(y, x-1) &&
+				// 			!isShip(y+1, x+1) && !isShip(y-1, x+1) && !isShip(y-1, x-1) && !isShip(y+1, x-1)) {
+				// 		var check = document.getElementById(`own-cell-${y}-${x}`);
+				// 		sColCheck.push(check);
+				// 	}
+				// }
 				var check = document.getElementById(`own-cell-${y}-${x}`);
 				sColCheck.push(check);
 				y+=dirs[i][0];
