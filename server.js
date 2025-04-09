@@ -19,9 +19,9 @@ app.use(express.static(join(__dirname, 'public')));
 io.on('connection', (socket) => {
     console.log('connect');
 
-    socket.on('enemyPlace', (shipID) => {
-		socket.broadcast.emit('placeEnemy', (shipID));
-	});
+    // socket.on('enemyPlace', (shipID) => {
+	// 	socket.broadcast.emit('placeEnemy', (shipID));
+	// });
 
   	socket.on('joinRoom', (data) => {
 		if ((io.sockets.adapter.rooms.get(data.roomId)?.size || 0) < 2) {
@@ -36,6 +36,16 @@ io.on('connection', (socket) => {
 			socket.emit('joinFail');
 		}
   	});
+
+	socket.on('shoot', (cell) => {
+		console.log(`Shot to cell ${cell} sent.`);
+		socket.broadcast.emit('shootCheck', cell);
+	});
+
+	socket.on('response', (response) => {
+		if (response[0] == "hit") socket.broadcast.emit('hit', response[1]);
+		else socket.broadcast.emit('miss', response[1]);
+	})
 
   	socket.on('disconnect', () => {
     	console.log('A client disconnected');

@@ -13,18 +13,18 @@ var clicking = false;
 var curClick = "";
 
 
-function createBoard(container, prefix, isClickable = false) {
+function createBoard(container, prefix) {
   	const table = document.createElement("table");
   	for (let i = 0; i < 10; i++) {
     	const tr = document.createElement("tr");
     	for (let j = 0; j < 10; j++) {
       		const td = document.createElement("td");
       		td.id = `${prefix}-cell-${i}-${j}`;
-      		if (isClickable && prefix == "own") {
+      		if (prefix == "own") {
 				td.addEventListener("click", function () {
 					place(this);
 			  	});
-      		} else if (isClickable && prefix == "enemy") {
+      		} else if (prefix == "enemy") {
 				td.addEventListener("click", function () {
 					shoot(this);
 				});
@@ -90,7 +90,9 @@ function serializeTable() {
 	}
 
 	// Convert the 2D array into a nicely formatted JSON string.
-	return JSON.stringify(tableData, null, 2);
+	const stringson = JSON.stringify(tableData, null, 2);
+	console.log(stringson)
+	return stringson;
 }
 
 function place(element) {
@@ -198,7 +200,9 @@ function place(element) {
 }
 
 function shoot(element) {
-	
+	if (element.style.backgroundColor == "") {
+		socket.emit('shoot', (element.id));
+	}
 }
 	
 function toggleCell(cell, color) {
@@ -218,17 +222,36 @@ socket.on('waiting', () => {
 });
 
 socket.on('joinSuccess', (data) => {
+	roomId = data.roomId;
 	waiting.style = "display: none";
-		game.style = "";
-		createBoard(ownBoard, "own", true);
-		createBoard(enemyBoard, "enemy", false);
+	game.style = "";
+	createBoard(ownBoard, "own");
+	createBoard(enemyBoard, "enemy");
 });
 
 socket.on('joinFail', () => {
 	alert("teli a szoba ez nem bohockocsi");
 });
 
-socket.on('placeEnemy', (shipID) => {
-	const cell = document.getElementById(shipID.replace("own", "enemy"));
-	cell.style.backgroundColor = "red";
+// socket.on('placeEnemy', (shipID) => {
+// 	const cell = document.getElementById(shipID.replace("own", "enemy"));
+// 	cell.style.backgroundColor = "red";
+// });
+
+socket.on('hit', (cell) => {
+	console.log(`Hit registered on cell ${cell}.`);
+	document.getElementById(cell).style.backgroundColor = "darkred";
+});
+
+socket.on('miss', (cell) => {
+	console.log(`Miss registered on cell ${cell}.`);
+	document.getElementById(cell).style.backgroundColor = "dimgrey";
 })
+
+socket.on('shootCheck', (cell) => {
+	const cCell = cell.replace('enemy', 'own');
+	let response = ["", cell];
+	console.log(cell + " " + cCell + " " + document.getElementById(cCell).style.backgroundColor);
+	if (document.getElementById(cCell).style.backgroundColor == "blue") response[0] = "hit";
+	socket.emit('response', (response));
+});
