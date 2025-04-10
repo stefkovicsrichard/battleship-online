@@ -12,6 +12,8 @@ const enemyBoard = document.getElementById("enemy_board");
 var clicking = false;
 var curClick = "";
 
+const dirs = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+const ships = [document.getElementById("5ship"), document.getElementById("4ship"), document.getElementById("3ship"), document.getElementById("2ship1"), document.getElementById("2ship2")];
 
 function createBoard(container, prefix) {
   	const table = document.createElement("table");
@@ -95,12 +97,67 @@ function serializeTable() {
 	return stringson;
 }
 
+function radioClick(element) {
+	for (let i = 0; i < ships.length; i++) {
+		if (clicking) {
+			if (ships[i].id==element.id) {
+				element.checked = false;
+				element.disabled = true;
+				ships[i] = "";
+			} else ships[i].disabled = false;
+		} else if (ships[i]!=element) ships[i].disabled = true;
+	}
+}
+
+function checkSink(y, x) {
+	const hitSet = new Set();
+	const shipSet = new Set();
+	for (let i = 0; i < dirs.length; i++) {
+		var sy = y;
+		var sx = x;
+		if (isInbounds(sy+dirs[i][0], sx+dirs[i][1]) && 
+				(document.getElementById(`own-cell-${sy+dirs[i][0]}-${sx+dirs[i][1]}`).style.backgroundColor == "blue" || 
+				document.getElementById(`own-cell-${sy+dirs[i][0]}-${sx+dirs[i][1]}`).style.backgroundColor == "darkblue")) {
+			shipSet.add(`${sy}${sx}`);
+			hitSet.add(`${sy}${sx}`);
+			sy+=dirs[i][0];
+			sx+=dirs[i][1];
+			while (isInbounds(sy, sx) && 
+					(document.getElementById(`own-cell-${sy}-${sx}`).style.backgroundColor == "blue" || 
+					document.getElementById(`own-cell-${sy}-${sx}`).style.backgroundColor == "darkblue")) {
+				shipSet.add(`${sy}${sx}`);
+				if (document.getElementById(`own-cell-${sy}-${sx}`).style.backgroundColor == "darkblue") {
+					console.log()
+					hitSet.add(`${sy}${sx}`);
+				}
+				sy+=dirs[i][0];
+				sx+=dirs[i][1];
+			}
+			i++;
+		}
+	}
+	console.log(hitSet, hitSet.size)
+	console.log(shipSet, shipSet.size)
+	if (hitSet.size == shipSet.size) {
+		return hitSet;
+	} else {
+		return false;
+	}
+}
+
 function place(element) {
-	const ship = document.getElementById('ship').value-1;
-	if (!clicking && element.style.backgroundColor != "blue") {
+	var ship = -1;
+	var sElement = "";
+	ships.forEach(s => {
+		if (s.checked==true) {
+			ship = s.id[0]-1;
+			sElement = s;
+		}
+	});
+	if (!clicking && element.style.backgroundColor != "blue" && ship != -1) {
+		radioClick(sElement);
 		curClick = element;
 		clicking = true;
-		const dirs = [[0, 1], [1, 0], [0, -1], [-1, 0]];
 		var y = element.id.split("-")[2]*1;
 		var x = element.id.split("-")[3]*1;
 		const cy = y;
@@ -178,17 +235,20 @@ function place(element) {
 				document.getElementById(`own-cell-${y}-${x}`).style.backgroundColor = "blue";
 				socket.emit('enemyPlace', (`own-cell-${y}-${x}`));
 			} while (y!=endY||x!=endX);
+			radioClick(sElement);
 			clicking = false;
-			curClick = "";
 			for (let i = 0; i < 10; i++) {
 				for (let j = 0; j < 10; j++) {
 					if (document.getElementById(`own-cell-${i}-${j}`).style.backgroundColor == "red" || document.getElementById(`own-cell-${i}-${j}`).style.backgroundColor == "orange")
 					document.getElementById(`own-cell-${i}-${j}`).style.backgroundColor = "";
-				} 
+				}
 			}
 		} else if (element.style.backgroundColor == "green") {
 			element.style.backgroundColor = "";
 			clicking = false;
+			ships.forEach(r => {
+				if (r!="") r.disabled = false;
+			});
 			for (let i = 0; i < 10; i++) {
 				for (let j = 0; j < 10; j++) {
 					var aCell = document.getElementById(`own-cell-${i}-${j}`);
@@ -251,7 +311,25 @@ socket.on('miss', (cell) => {
 socket.on('shootCheck', (cell) => {
 	const cCell = cell.replace('enemy', 'own');
 	let response = ["", cell];
-	console.log(cell + " " + cCell + " " + document.getElementById(cCell).style.backgroundColor);
-	if (document.getElementById(cCell).style.backgroundColor == "blue") response[0] = "hit";
-	socket.emit('response', (response));
+	if (document.getElementById(cCell).style.backgroundColor == "blue") {
+		response[0] = "hit";
+		socket.emit('response', (response));
+		console.log(response[0]);
+		document.getElementById(cCell).style.backgroundColor = "darkblue";
+		const setArray = Array.from(checkSink(cCell.split('-')[2]*1, cCell.split('-')[3]*1));
+		socket.emit('sinkCheck', setArray);
+		console.log(setArray);
+	}
+	else {
+		document.getElementById(cCell).style.backgroundColor = "lightsteelblue";
+		socket.emit('response', (response));
+		console.log(response[0]);
+	}
+});
+
+socket.on('shipSunk', (ship) => {
+	console.log(ship);
+	ship.forEach(c => {
+		document.getElementById(`enemy-cell-${c[0]*1}-${c[1]*1}`).style.backgroundColor = "lightslategray";
+	});
 });

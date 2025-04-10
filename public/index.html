@@ -17,7 +17,13 @@
     </div>
     <div id="waiting"><h1>WAITING FOR SECOND PLAYER... / VÁRAKOZÁS A MÁSODIK JÁTÉKOSRA...</h1></div>
     <div id="game" class="container-fluid">
-        <input type="number" name="ship" id="ship" placeholder="ship" min="2" max="5" onkeydown="return false" value="5">
+        <div id="ships">
+            <input type="radio" name="ship" id="5ship" autocomplete="off"> <label for="5ship">5 |</label> 
+            <input type="radio" name="ship" id="4ship" autocomplete="off"> <label for="4ship">4 |</label>
+            <input type="radio" name="ship" id="3ship" autocomplete="off"> <label for="3ship">3 |</label>
+            <input type="radio" name="ship" id="2ship1" autocomplete="off"> <label for="2ship1">2 |</label>
+            <input type="radio" name="ship" id="2ship2" autocomplete="off"> <label for="2ship2">2</label>
+        </div>
         <div class="row">
             <div id="own_board" class="col-xl-6 col-lg-12"><input type="button" value="serialize" onclick="serializeTable()"></div>
             <div id="enemy_board" class="col-xl-6 col-lg-12"></div>

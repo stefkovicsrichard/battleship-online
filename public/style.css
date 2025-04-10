@@ -19,3 +19,8 @@ td {
     text-align: center; 
     vertical-align: middle; 
 }
+
+#ships {
+    color: white;
+    font-size: larger;
+}

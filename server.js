@@ -42,10 +42,14 @@ io.on('connection', (socket) => {
 		socket.broadcast.emit('shootCheck', cell);
 	});
 
+	socket.on('sinkCheck', (sunk) => {
+		if (sunk!=false) socket.broadcast.emit('shipSunk', (sunk));
+	});
+
 	socket.on('response', (response) => {
 		if (response[0] == "hit") socket.broadcast.emit('hit', response[1]);
 		else socket.broadcast.emit('miss', response[1]);
-	})
+	});
 
   	socket.on('disconnect', () => {
     	console.log('A client disconnected');
