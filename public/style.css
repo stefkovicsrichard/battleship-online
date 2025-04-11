@@ -24,3 +24,9 @@ td {
     color: white;
     font-size: larger;
 }
+
+#rules {
+    color: wheat;
+    display: block;
+    margin: auto;
+}
