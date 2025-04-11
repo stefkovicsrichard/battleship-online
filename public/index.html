@@ -14,6 +14,38 @@
         <input type="text" name="username" id="username" placeholder="FELHASZNALONEV">
         <input type="text" name="roomId" id="roomId" placeholder="ROOM ID">
         <input type="button" value="Join" onclick="join({username: document.getElementById('username').value, roomId: document.getElementById('roomId').value})">
+        <ul id="rules">
+            <p>
+                Szabályzat
+            </p>
+            <li>
+                Alapszabályok:
+                <ul>
+                    <li>
+                        5 hajóval rendelkezel: egy 5 -, egy 4 -, egy 3 - és kettő 2 egység hosszú hajóval.
+                    </li>
+                    <li>    
+                        Felváltva próbáljátok ellenfeleddel elpusztítani egymás armadáját. A körök addig tartanak, ameddig az éppen soron lévő kapitány összes lövése betalál.
+                    </li>
+                    <li>
+                        Az a játékos nyer, aki korábban el tudja süllyeszteni az összes ellenséges hajót.
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Sajátos változtatásaink:
+                <ul>
+                    <li>
+                        Minden hajó lehelyezése végleges, viszont a kezdőpozíció szabadon változtatható, amíg nincs lehelyezve a hajó.
+                    </li>
+                </ul>
+            </li>
+            <br>
+            <p>
+                Kellemes játékot kívánunk!
+            </p>
+        </ul>
+
     </div>
     <div id="waiting"><h1>WAITING FOR SECOND PLAYER... / VÁRAKOZÁS A MÁSODIK JÁTÉKOSRA...</h1></div>
     <div id="game" class="container-fluid">
