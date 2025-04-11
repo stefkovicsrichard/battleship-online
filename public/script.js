@@ -3,6 +3,7 @@ const socket = io();
 const login = document.getElementById("credentials");
 const game = document.getElementById("game");
 const waiting = document.getElementById("waiting");
+var number = 0;
 waiting.style = "display: none";
 game.style = "display: none";
 
@@ -283,6 +284,9 @@ socket.on('waiting', () => {
 
 socket.on('joinSuccess', (data) => {
 	roomId = data.roomId;
+	number = Math.floor(Math.random()*100)+1;
+	number *= Math.floor(Math.random()*100)+1;
+	// 1/1000000 esely arra h breakel az egesz
 	waiting.style = "display: none";
 	game.style = "";
 	createBoard(ownBoard, "own");
