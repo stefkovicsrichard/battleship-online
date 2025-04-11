@@ -1,4 +1,4 @@
-body {
+/* body {
     background-color: #0c0c0e;
     width: 100vw;
     height: 100vh;
@@ -29,4 +29,185 @@ td {
     color: wheat;
     display: block;
     margin: auto;
+} */
+
+/* Global Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #111;
+    color: #f0f0f0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+/* Credentials */
+#credentials {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+#credentials input[type="text"],
+#credentials input[type="button"] {
+    background-color: #222;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+}
+
+#credentials input[type="button"] {
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+#credentials input[type="button"]:hover {
+    background-color: #333;
+}
+
+/* Rules Styling */
+#rules {
+    list-style-type: none;
+    background-color: #1a1a1a;
+    padding: 1rem;
+    border-radius: 10px;
+    max-width: 600px;
+}
+
+#rules p {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+#rules li {
+    margin-bottom: 0.5rem;
+}
+
+/* Game Container */
+#game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+/* Ships Select */
+#ships {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+#ships label {
+    margin: 0 0.5rem;
+    cursor: pointer;
+}
+
+#ships input[type="radio"] {
+    margin-right: 0.25rem;
+}
+
+/* Boards layout for PC */
+@media (min-width: 992px) {
+    #game .row {
+        display: flex;
+        justify-content: space-around;
+        align-items: flex-start;
+    }
+
+    #own_board,
+    #enemy_board {
+        flex: 1;
+        max-width: 600px;
+    }
+
+    #rules {
+        order: -1;
+        margin: 0 2rem;
+    }
+
+    table td {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Boards layout for Mobile */
+@media (max-width: 991px) {
+    #own_board,
+    #enemy_board {
+        width: 100%;
+        margin-bottom: 2rem;
+    }
+
+    table td {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+/* Table styling */
+table {
+    border-collapse: collapse;
+    margin: auto;
+    background-color: #000;
+}
+
+td {
+    border: 1px solid #444;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* Waiting screen */
+#waiting {
+    text-align: center;
+    color: #ccc;
+    margin: 2rem;
+}
+
+/* Cell color states */
+td.blue {
+    background-color: blue;
+}
+
+td.darkblue {
+    background-color: darkblue;
+}
+
+td.red {
+    background-color: red;
+}
+
+td.orange {
+    background-color: orange;
+}
+
+td.green {
+    background-color: green;
+}
+
+td.darkred {
+    background-color: darkred;
+}
+
+td.dimgrey {
+    background-color: dimgrey;
+}
+
+td.lightsteelblue {
+    background-color: lightsteelblue;
+}
+
+td.lightslategray {
+    background-color: lightslategray;
 }
