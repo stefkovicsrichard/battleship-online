@@ -10,10 +10,13 @@ game.style = "display: none";
 const ownBoard = document.getElementById("own_board");
 const enemyBoard = document.getElementById("enemy_board");
 
+var myTurn = false;
+var placedAll = false;
 var clicking = false;
 var curClick = "";
 
 const dirs = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+const dships = [];
 const ships = [document.getElementById("5ship"), document.getElementById("4ship"), document.getElementById("3ship"), document.getElementById("2ship1"), document.getElementById("2ship2")];
 
 function createBoard(container, prefix) {
@@ -105,6 +108,7 @@ function radioClick(element) {
 				element.checked = false;
 				element.disabled = true;
 				ships[i] = "";
+				dships.push(element);
 			} else ships[i].disabled = false;
 		} else if (ships[i]!=element) ships[i].disabled = true;
 	}
@@ -238,6 +242,8 @@ function place(element) {
 			} while (y!=endY||x!=endX);
 			radioClick(sElement);
 			clicking = false;
+			checkAllPlaced();
+			console.log("checkAllPlaced called");
 			for (let i = 0; i < 10; i++) {
 				for (let j = 0; j < 10; j++) {
 					if (document.getElementById(`own-cell-${i}-${j}`).style.backgroundColor == "red" || document.getElementById(`own-cell-${i}-${j}`).style.backgroundColor == "orange")
@@ -260,6 +266,38 @@ function place(element) {
 	}
 }
 
+function checkAllPlaced() {
+	var n = 0;
+	dships.forEach(s => {
+		if (s.disabled==true) {
+			n++;
+		}
+		console.log(n, "ships placed");
+	});
+	if (n==5) {
+		placedAll = true;
+		startCheck();
+		console.log('all ships placed');
+	}
+}
+
+async function startCheck() {
+	console.log('startcheck called')
+	try {
+		const response = await socket.emitWithAck('areAllShipsPlaced');
+		console.log(response);
+		if (response == true) {
+			myTurn = socket.emitWithAck('startGame', (number));
+			console.log(myTurn);
+		}
+		if (myTurn) {
+			console.log("call go");
+		}
+	} catch (e) {
+		console.log("no response within 10 sec");
+	}
+}
+
 function shoot(element) {
 	if (element.style.backgroundColor == "") {
 		socket.emit('shoot', (element.id));
@@ -269,6 +307,24 @@ function shoot(element) {
 function toggleCell(cell, color) {
 	cell.style.backgroundColor = color;
 }
+
+socket.on('youGo', () => {
+	myTurn = true;
+	console.log("yougo called");
+});
+
+socket.on('isShipPlaced', (callback) => {
+	if (placedAll == true) {
+		callback(true);
+	} else {
+		callback(false);
+	}
+	console.log("placed all:", placedAll)
+});
+
+socket.on('getNum', (callback) => {
+	callback(number);
+});
 
 socket.on('change', (element) => {
 	const target = element.id.replace('own', 'enemy');
