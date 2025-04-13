@@ -287,11 +287,8 @@ async function startCheck() {
 		const response = await socket.emitWithAck('areAllShipsPlaced');
 		console.log(response);
 		if (response == true) {
-			myTurn = socket.emitWithAck('startGame', (number));
+			myTurn = await socket.emitWithAck('startGame', (number));
 			console.log(myTurn);
-		}
-		if (myTurn) {
-			console.log("call go");
 		}
 	} catch (e) {
 		console.log("no response within 10 sec");
@@ -299,7 +296,7 @@ async function startCheck() {
 }
 
 function shoot(element) {
-	if (element.style.backgroundColor == "") {
+	if (myTurn && element.style.backgroundColor == "") {
 		socket.emit('shoot', (element.id));
 	}
 }
@@ -310,7 +307,6 @@ function toggleCell(cell, color) {
 
 socket.on('youGo', () => {
 	myTurn = true;
-	console.log("yougo called");
 });
 
 socket.on('isShipPlaced', (callback) => {
@@ -366,6 +362,8 @@ socket.on('hit', (cell) => {
 socket.on('miss', (cell) => {
 	console.log(`Miss registered on cell ${cell}.`);
 	document.getElementById(cell).style.backgroundColor = "dimgrey";
+	myTurn = false;
+	socket.emit('passTurn');
 })
 
 socket.on('shootCheck', (cell) => {

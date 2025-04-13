@@ -48,16 +48,20 @@ io.on('connection', (socket) => {
 	
 	socket.on('areAllShipsPlaced', async (callback) => {
 		console.log("bothPlacedShips called")
-		const response = await socket.timeout(10000).broadcast.emitWithAck('isShipPlaced');
+		const response = await socket.timeout(10000).to(socket.room).emitWithAck('isShipPlaced');
 		console.log("broadcast placed ship", response, typeof response)
 		if (response[0] == true) callback(true);
 		else callback(false);
 	});
 
+	socket.on('passTurn', () => {
+		socket.to(socket.room).emit('youGo');
+	})
+
 	socket.on('startGame', async (number, callback) => {
 		console.log("startgame called by playernum", number)
 		try {
-			const response = await socket.timeout(10000).broadcast.emitWithAck('getNum');
+			const response = await socket.timeout(10000).to(socket.room).emitWithAck('getNum');
 			console.log(response)
 			if (response[0] > number) {
 				const sockets = await io.in(socket.room).fetchSockets();
@@ -65,11 +69,13 @@ io.on('connection', (socket) => {
 				sockets.forEach((s) => {
 					if (s!=socket.id) p2 = s;
 				});
-				console.log(p2.username, "starts")
-				socket.broadcast.emit('youGo');
+				console.log(socket.username, socket.id);
+				console.log(p2.username, p2.id);
+				console.log(p2.username, "starts");
+				socket.to(socket.room).emit('youGo');
 				callback(false);
 			} else {
-				console.log(socket.username, "starts")
+				console.log(socket.username, "starts");
 				callback(true);
 			}
 		} catch (e) {
@@ -79,16 +85,16 @@ io.on('connection', (socket) => {
 
 	socket.on('shoot', (cell) => {
 		console.log(`Shot to cell ${cell} sent.`);
-		socket.broadcast.emit('shootCheck', cell);
+		socket.to(socket.room).emit('shootCheck', cell);
 	});
 
 	socket.on('sinkCheck', (sunk) => {
-		if (sunk!=false) socket.broadcast.emit('shipSunk', (sunk));
+		if (sunk!=false) socket.to(socket.room).emit('shipSunk', (sunk));
 	});
 
 	socket.on('response', (response) => {
-		if (response[0] == "hit") socket.broadcast.emit('hit', response[1]);
-		else socket.broadcast.emit('miss', response[1]);
+		if (response[0] == "hit") socket.to(socket.room).emit('hit', response[1]);
+		else socket.to(socket.room).emit('miss', response[1]);
 	});
 
   	socket.on('disconnect', () => {
