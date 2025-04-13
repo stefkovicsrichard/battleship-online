@@ -14,6 +14,7 @@ var myTurn = false;
 var placedAll = false;
 var clicking = false;
 var curClick = "";
+var sunkShips = 0;
 
 const dirs = [[0, 1], [1, 0], [0, -1], [-1, 0]];
 const dships = [];
@@ -385,9 +386,19 @@ socket.on('shootCheck', (cell) => {
 	}
 });
 
+socket.on('lose', () => {
+	alert("you lose");
+})
+
 socket.on('shipSunk', (ship) => {
+	sunkShips++;
 	console.log(ship);
 	ship.forEach(c => {
 		document.getElementById(`enemy-cell-${c[0]*1}-${c[1]*1}`).style.backgroundColor = "lightslategray";
 	});
+	if (sunkShips == 5) {
+		socket.emit('gameOver');
+		alert('you win');
+		myTurn = false;
+	}
 });
