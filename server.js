@@ -73,8 +73,14 @@ io.on('connection', (socket) => {
 		}
 	});
 
-	socket.on('gameOver', () => {
+	socket.on('gameOver', async () => {
 		socket.to(socket.room).emit('lose');
+		const response1 = await socket.timeout(10000).emitWithAck('getSerializedBoard');
+		console.log(response1);
+		socket.to(socket.room).emit('loadSerializedBoard', (response1));
+		const response2 = await socket.timeout(10000).to(socket.room).emitWithAck('getSerializedBoard');
+		console.log(response2)
+		socket.emit('loadSerializedBoard', (response2));
 	});
 
 	socket.on('shoot', (cell) => {
@@ -92,7 +98,8 @@ io.on('connection', (socket) => {
 	});
 
   	socket.on('disconnect', () => {
-    	console.log('A client disconnected');
+    	console.log('A client disconnected, disbanding game.');
+		socket.to(socket.room).emit('disband');
   	});
 })
 

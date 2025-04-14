@@ -10,6 +10,10 @@ game.style = "display: none";
 const ownBoard = document.getElementById("own_board");
 const enemyBoard = document.getElementById("enemy_board");
 
+var boardsCreated = false;
+
+var boardJSON;
+
 var myTurn = false;
 var placedAll = false;
 var clicking = false;
@@ -72,10 +76,6 @@ function isInbounds(y, x) {
 
 function serializeTable() {
 	const table = document.getElementById("own_board");
-	if (!table) {
-	 	console.error(`Table with id "own_board" not found.`);
-	  	return null;
-	}
 
 	const tableData = [];
 	const rows = table.getElementsByTagName('tr');
@@ -97,9 +97,7 @@ function serializeTable() {
 	}
 
 	// Convert the 2D array into a nicely formatted JSON string.
-	const stringson = JSON.stringify(tableData, null, 2);
-	console.log(stringson)
-	return stringson;
+	return JSON.stringify(tableData, null, 2);
 }
 
 function radioClick(element) {
@@ -290,6 +288,9 @@ async function startCheck() {
 		if (response == true) {
 			myTurn = await socket.emitWithAck('startGame', (number));
 			console.log(myTurn);
+			toggleTurnColor();
+			boardJSON = serializeTable();
+			console.log(boardJSON);
 		}
 	} catch (e) {
 		console.log("no response within 10 sec");
@@ -306,8 +307,38 @@ function toggleCell(cell, color) {
 	cell.style.backgroundColor = color;
 }
 
+function toggleTurnColor() {
+	if (myTurn) {
+		enemyBoard.firstChild.style.boxShadow = "0px 0px 7px 7px red";
+	} else {
+		enemyBoard.firstChild.style.boxShadow = "";
+	}
+}
+
+socket.on('loadSerializedBoard', (data) => {
+	const json = JSON.parse(data);
+	for (let i = 0; i < 10; i++) {
+		for (let j = 0; j < 10; j++) {
+			const stepCell = document.getElementById(`enemy-cell-${i}-${j}`);
+			if (stepCell.style.backgroundColor == "") {
+				stepCell.style.backgroundColor = json[i][j];
+			}
+			if (stepCell.style.backgroundColor == "blue") {
+				stepCell.style.backgroundColor = "red";
+			}
+		}
+	}
+});
+
+socket.on('getSerializedBoard', (callback) => {
+	callback(boardJSON);
+});
+
 socket.on('youGo', () => {
 	myTurn = true;
+	toggleTurnColor();
+	boardJSON = serializeTable();
+	console.log(boardJSON);
 });
 
 socket.on('isShipPlaced', (callback) => {
@@ -336,14 +367,17 @@ socket.on('waiting', () => {
 });
 
 socket.on('joinSuccess', (data) => {
-	roomId = data.roomId;
-	number = Math.floor(Math.random()*100)+1;
-	number *= Math.floor(Math.random()*100)+1;
-	// 1/1000000 esely arra h breakel az egesz
-	waiting.style = "display: none";
-	game.style = "";
-	createBoard(ownBoard, "own");
-	createBoard(enemyBoard, "enemy");
+	if (!boardsCreated) {
+		boardsCreated = true;
+		roomId = data.roomId;
+		number = Math.floor(Math.random()*100)+1;
+		number *= Math.floor(Math.random()*100)+1;
+		// 1/1000000 esely arra h breakel az egesz
+		waiting.style = "display: none";
+		game.style = "";
+		createBoard(ownBoard, "own");
+		createBoard(enemyBoard, "enemy");
+	}
 });
 
 socket.on('joinFail', () => {
@@ -364,6 +398,7 @@ socket.on('miss', (cell) => {
 	console.log(`Miss registered on cell ${cell}.`);
 	document.getElementById(cell).style.backgroundColor = "dimgrey";
 	myTurn = false;
+	toggleTurnColor();
 	socket.emit('passTurn');
 })
 
@@ -387,7 +422,7 @@ socket.on('shootCheck', (cell) => {
 });
 
 socket.on('lose', () => {
-	alert("you lose");
+	enemyBoard.firstChild.style.boxShadow = "0px 0px 7px 7px goldenrod";
 })
 
 socket.on('shipSunk', (ship) => {
@@ -398,7 +433,12 @@ socket.on('shipSunk', (ship) => {
 	});
 	if (sunkShips == 5) {
 		socket.emit('gameOver');
-		alert('you win');
 		myTurn = false;
+		toggleTurnColor();
+		ownBoard.firstChild.style.boxShadow = "0px 0px 7px 7px goldenrod";
 	}
 });
+
+socket.on('disband', () => {
+	window.location.reload();
+} )
